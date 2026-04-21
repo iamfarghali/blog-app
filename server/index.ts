@@ -61,6 +61,35 @@ app.delete('/api/posts/:id', async (req, res) => {
   res.status(204).send();
 });
 
+app.post('/api/analytics/view', async (req, res) => {
+  const { postId } = req.body;
+  if (!postId) {
+    res.status(400).json({ error: 'postId required' });
+    return;
+  }
+  const pageView = await prisma.pageView.create({
+    data: { postId },
+  });
+  res.status(201).json(pageView);
+});
+
+app.get('/api/analytics', async (_req, res) => {
+  const analytics = await prisma.post.findMany({
+    include: {
+      _count: {
+        select: { pageViews: true },
+      },
+    },
+  });
+  const result = analytics.map((post) => ({
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    views: post._count.pageViews,
+  }));
+  res.json(result);
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -14,4 +14,12 @@ model Post {
   published Boolean  @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  pageViews PageView[]
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now())
 }

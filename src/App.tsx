@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { PostList } from './pages/PostList';
 import { PostEditor } from './pages/PostEditor';
+import { Analytics } from './pages/Analytics';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Route index element={<PostList />} />
           <Route path="new" element={<PostEditor />} />
           <Route path="edit/:id" element={<PostEditor />} />
+          <Route path="analytics" element={<Analytics />} />
         </Route>
       </Routes>
     </BrowserRouter>

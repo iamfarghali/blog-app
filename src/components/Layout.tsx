@@ -31,6 +31,18 @@ export function Layout() {
             >
               New Post
             </NavLink>
+            <NavLink
+              to="/analytics"
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-md text-sm ${
+                  isActive
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`
+              }
+            >
+              Analytics
+            </NavLink>
           </div>
         </div>
       </nav>
