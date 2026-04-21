@@ -22,6 +22,11 @@ interface PostsState {
 }
 
 const API_URL = '/api';
+const API_KEY = import.meta.env.VITE_API_KEY || '';
+
+const authHeaders = {
+  'x-api-key': API_KEY,
+};
 
 export const usePostsStore = create<PostsState>((set, get) => ({
   posts: [],
@@ -43,7 +48,9 @@ export const usePostsStore = create<PostsState>((set, get) => ({
   fetchAdminPosts: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_URL}/admin/posts`);
+      const res = await fetch(`${API_URL}/admin/posts`, {
+        headers: authHeaders,
+      });
       if (!res.ok) throw new Error('Failed to fetch posts');
       const posts = await res.json();
       set({ posts, loading: false });
@@ -57,7 +64,10 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     try {
       const res = await fetch(`${API_URL}/posts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
         body: JSON.stringify(post),
       });
       if (!res.ok) throw new Error('Failed to create post');
@@ -73,7 +83,10 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     try {
       const res = await fetch(`${API_URL}/posts/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
         body: JSON.stringify(post),
       });
       if (!res.ok) throw new Error('Failed to update post');
@@ -90,7 +103,10 @@ export const usePostsStore = create<PostsState>((set, get) => ({
   deletePost: async (id) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`${API_URL}/posts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/posts/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
       if (!res.ok) throw new Error('Failed to delete post');
       set({ posts: get().posts.filter((p) => p.id !== id), loading: false });
     } catch (e) {
