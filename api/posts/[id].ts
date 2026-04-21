@@ -52,7 +52,7 @@ export default async function handler(
     await prismaClient.post.delete({
       where: { id: param },
     });
-    return res.status(204).send();
+    return res.status(204).send(null);
   }
 
   res.status(405).json({ error: 'Method not allowed' });
