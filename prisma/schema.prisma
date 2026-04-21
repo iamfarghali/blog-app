@@ -24,4 +24,6 @@ model PageView {
   postId    String
   post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
   viewedAt  DateTime @default(now())
+
+  @@index([postId])
 }
