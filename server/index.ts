@@ -2,19 +2,28 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const API_KEY = process.env.API_KEY;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+function handlePrismaError(error: unknown, res: express.Response): boolean {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2025') {
+      res.status(404).json({ error: 'Post not found' });
+      return true;
+    }
+    if (error.code === 'P2002') {
+      res.status(409).json({ error: 'Unique constraint violation' });
+      return true;
+    }
+  }
+  return false;
+}
 
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const key = req.headers['x-api-key'];
@@ -118,6 +127,9 @@ app.put('/api/posts/:id', authMiddleware, async (req, res, next) => {
       res.status(400).json({ error: 'Validation error', details: error.errors });
       return;
     }
+    if (handlePrismaError(error, res)) {
+      return;
+    }
     next(error);
   }
 });
@@ -133,6 +145,9 @@ app.delete('/api/posts/:id', authMiddleware, async (req, res, next) => {
     });
     res.status(204).send();
   } catch (error) {
+    if (handlePrismaError(error, res)) {
+      return;
+    }
     next(error);
   }
 });

@@ -1,18 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
-
-let prisma: PrismaClient;
-
-function getPrisma() {
-  if (!prisma) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
-    prisma = new PrismaClient({ adapter });
-  }
-  return prisma;
-}
+import { getPrisma } from '../../lib/prisma';
 
 function isAuthorized(req: VercelRequest): boolean {
   const apiKey = req.headers['x-api-key'];
@@ -32,8 +19,7 @@ export default async function handler(
   }
 
   try {
-    const prismaClient = getPrisma();
-    const posts = await prismaClient.post.findMany({
+    const posts = await getPrisma().post.findMany({
       orderBy: { createdAt: 'desc' },
     });
     res.json(posts);

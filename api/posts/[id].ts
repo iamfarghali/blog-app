@@ -1,19 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import { getPrisma } from '../../lib/prisma';
 import { z } from 'zod';
-
-let prisma: PrismaClient;
-
-function getPrisma() {
-  if (!prisma) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
-    prisma = new PrismaClient({ adapter });
-  }
-  return prisma;
-}
+import { Prisma } from '@prisma/client';
 
 function isUUID(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
@@ -22,6 +10,20 @@ function isUUID(value: string): boolean {
 function isAuthorized(req: VercelRequest): boolean {
   const apiKey = req.headers['x-api-key'];
   return apiKey === process.env.API_KEY;
+}
+
+function handlePrismaError(error: unknown, res: VercelResponse): boolean {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2025') {
+      res.status(404).json({ error: 'Post not found' });
+      return true;
+    }
+    if (error.code === 'P2002') {
+      res.status(409).json({ error: 'Unique constraint violation' });
+      return true;
+    }
+  }
+  return false;
 }
 
 const postUpdateSchema = z.object({
@@ -40,11 +42,10 @@ export default async function handler(
 
   if (req.method === 'GET') {
     try {
-      const prismaClient = getPrisma();
       const where = isUUID(param) 
         ? { id: param } 
         : { slug: param };
-      const post = await prismaClient.post.findUnique({ where });
+      const post = await getPrisma().post.findUnique({ where });
       if (!post) {
         return res.status(404).json({ error: 'Post not found' });
       }
@@ -74,6 +75,9 @@ export default async function handler(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors });
       }
+      if (handlePrismaError(error, res)) {
+        return;
+      }
       console.error('Error updating post:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
@@ -89,6 +93,9 @@ export default async function handler(
       });
       return res.status(204).send(null);
     } catch (error) {
+      if (handlePrismaError(error, res)) {
+        return;
+      }
       console.error('Error deleting post:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
