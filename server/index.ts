@@ -157,7 +157,7 @@ app.post('/api/analytics/view', async (req, res, next) => {
   }
 });
 
-app.get('/api/analytics', async (_req, res, next) => {
+app.get('/api/analytics', authMiddleware, async (_req, res, next) => {
   try {
     const analytics = await prisma.post.findMany({
       include: {
