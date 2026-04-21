@@ -5,7 +5,7 @@ import { usePostsStore } from '../store/posts';
 export function PostEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { posts, createPost, updatePost, loading, fetchPosts } = usePostsStore();
+  const { posts, createPost, updatePost, loading, fetchAdminPosts } = usePostsStore();
   const isEditing = Boolean(id);
 
   const [title, setTitle] = useState('');
@@ -15,9 +15,9 @@ export function PostEditor() {
 
   useEffect(() => {
     if (posts.length === 0) {
-      fetchPosts();
+      fetchAdminPosts();
     }
-  }, [fetchPosts, posts.length]);
+  }, [fetchAdminPosts, posts.length]);
 
   const post = posts.find((p) => p.id === id);
   if (post && !title && !content) {
@@ -34,7 +34,7 @@ export function PostEditor() {
     } else {
       await createPost({ title, slug, content, published });
     }
-    navigate('/');
+    navigate('/admin');
   };
 
   return (
@@ -100,7 +100,7 @@ export function PostEditor() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/admin')}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
           >
             Cancel

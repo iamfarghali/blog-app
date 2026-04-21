@@ -15,6 +15,7 @@ interface PostsState {
   loading: boolean;
   error: string | null;
   fetchPosts: () => Promise<void>;
+  fetchAdminPosts: () => Promise<void>;
   createPost: (post: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updatePost: (id: string, post: Partial<Post>) => Promise<void>;
   deletePost: (id: string) => Promise<void>;
@@ -31,6 +32,18 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch(`${API_URL}/posts`);
+      if (!res.ok) throw new Error('Failed to fetch posts');
+      const posts = await res.json();
+      set({ posts, loading: false });
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false });
+    }
+  },
+
+  fetchAdminPosts: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await fetch(`${API_URL}/admin/posts`);
       if (!res.ok) throw new Error('Failed to fetch posts');
       const posts = await res.json();
       set({ posts, loading: false });

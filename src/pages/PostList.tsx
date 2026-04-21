@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { usePostsStore } from '../store/posts';
 
 export function PostList() {
-  const { posts, loading, error, fetchPosts, deletePost } = usePostsStore();
+  const { posts, loading, error, fetchAdminPosts, deletePost } = usePostsStore();
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    fetchAdminPosts();
+  }, [fetchAdminPosts]);
 
   if (loading && posts.length === 0) {
     return <div className="text-center py-8 text-gray-500">Loading...</div>;
@@ -22,7 +22,7 @@ export function PostList() {
       <div className="text-center py-8">
         <p className="text-gray-500 mb-4">No posts yet</p>
         <Link
-          to="/new"
+          to="/admin/new"
           className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
           Create your first post
@@ -36,7 +36,7 @@ export function PostList() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-900">Posts</h2>
         <Link
-          to="/new"
+          to="/admin/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
           New Post
@@ -51,7 +51,7 @@ export function PostList() {
           >
             <div className="flex-1 min-w-0">
               <Link
-                to={`/edit/${post.id}`}
+                to={`/admin/edit/${post.id}`}
                 className="block hover:text-blue-600"
               >
                 <h3 className="text-lg font-medium text-gray-900 truncate">
@@ -71,7 +71,7 @@ export function PostList() {
                 {post.published ? 'Published' : 'Draft'}
               </span>
               <Link
-                to={`/edit/${post.id}`}
+                to={`/admin/edit/${post.id}`}
                 className="p-2 text-gray-400 hover:text-gray-600"
               >
                 Edit

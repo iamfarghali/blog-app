@@ -21,6 +21,14 @@ app.get('/api/health', (_req, res) => {
 
 app.get('/api/posts', async (_req, res) => {
   const posts = await prisma.post.findMany({
+    where: { published: true },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json(posts);
+});
+
+app.get('/api/admin/posts', async (_req, res) => {
+  const posts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
   });
   res.json(posts);
