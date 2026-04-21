@@ -5,7 +5,7 @@ import { usePostsStore } from '../store/posts';
 export function PostEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { posts, createPost, updatePost, loading } = usePostsStore();
+  const { posts, createPost, updatePost, loading, fetchPosts } = usePostsStore();
   const isEditing = Boolean(id);
 
   const [title, setTitle] = useState('');
@@ -14,16 +14,18 @@ export function PostEditor() {
   const [published, setPublished] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      const post = posts.find((p) => p.id === id);
-      if (post) {
-        setTitle(post.title);
-        setSlug(post.slug);
-        setContent(post.content);
-        setPublished(post.published);
-      }
+    if (posts.length === 0) {
+      fetchPosts();
     }
-  }, [id, posts]);
+  }, [fetchPosts, posts.length]);
+
+  const post = posts.find((p) => p.id === id);
+  if (post && !title && !content) {
+    setTitle(post.title);
+    setSlug(post.slug);
+    setContent(post.content);
+    setPublished(post.published);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,9 +45,7 @@ export function PostEditor() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Title
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
           <input
             type="text"
             value={title}
@@ -56,9 +56,7 @@ export function PostEditor() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Slug
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
           <input
             type="text"
             value={slug}
@@ -69,9 +67,7 @@ export function PostEditor() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Content
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
