@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
@@ -9,6 +10,7 @@ import { z } from 'zod';
 const app = express();
 const PORT = process.env.PORT || 3001;
 const API_KEY = process.env.API_KEY;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -23,7 +25,8 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
   next();
 };
 
-app.use(cors());
+app.use(helmet());
+app.use(cors({ origin: ALLOWED_ORIGIN }));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {
