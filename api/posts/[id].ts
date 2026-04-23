@@ -4,11 +4,7 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
+  datasourceUrl: process.env.DATABASE_URL,
 });
 
 function isUUID(value: string): boolean {
