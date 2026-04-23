@@ -46,7 +46,7 @@ if (req.method === 'GET') {
   if (req.method === 'POST') {
     try {
       const data = postCreateSchema.parse(req.body);
-      const post = await getPrisma().post.create({
+      const post = await prisma.post.create({
         data: { ...data, published: data.published ?? false },
       });
       return res.status(201).json(post);

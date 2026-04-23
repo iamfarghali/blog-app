@@ -75,12 +75,16 @@ export function PostEditor() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEditing && id) {
-      await updatePost(id, { title, slug, content, published });
-    } else {
-      await createPost({ title, slug, content, published });
+    try {
+      if (isEditing && id) {
+        await updatePost(id, { title, slug, content, published });
+      } else {
+        await createPost({ title, slug, content, published });
+      }
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to save:', error);
     }
-    navigate('/admin');
   };
 
   if (!isEditing && id) {
