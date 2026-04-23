@@ -22,21 +22,20 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  if (req.method === 'GET') {
+if (req.method === 'GET') {
     try {
-      if (!process.env.DATABASE_URL) {
-        console.error('DATABASE_URL not set in environment');
-        return res.status(500).json({ error: 'DATABASE_URL not configured', env: !!process.env.DATABASE_URL });
-      }
-      const posts = await getPrisma().post.findMany({
+      console.log('Fetching posts, DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      const posts = await prisma.post.findMany({
         where: { published: true },
         orderBy: { createdAt: 'desc' },
       });
+      console.log('Posts found:', posts.length);
       return res.json(posts);
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      console.error('Error fetching posts:', errMsg);
-      return res.status(500).json({ error: 'Internal server error', message: errMsg, stack: error instanceof Error ? error.stack : undefined });
+      const errStack = error instanceof Error ? error.stack : '';
+      console.error('Error fetching posts:', errMsg, errStack);
+      return res.status(500).json({ error: 'Internal server error', message: errMsg });
     }
   }
 
