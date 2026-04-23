@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import type { Post } from '../store/posts';
 
 export function BlogPost() {
@@ -97,7 +98,7 @@ export function BlogPost() {
       <div className="prose prose-lg prose-gray max-w-none">
         <div 
           className="blog-content"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
         />
       </div>
 

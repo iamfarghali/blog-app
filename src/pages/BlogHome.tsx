@@ -1,9 +1,25 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePostsStore } from '../store/posts';
 
 export function BlogHome() {
   const { posts, loading, error, fetchPosts } = usePostsStore();
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      setEmailError('Email is required');
+      return false;
+    }
+    if (!emailRegex.test(value)) {
+      setEmailError('Please enter a valid email');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -90,12 +106,18 @@ export function BlogHome() {
       <section className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-center text-white">
         <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
         <p className="text-blue-100 mb-4">Get notified when new posts are published.</p>
-        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-          <input 
-            type="email" 
-            placeholder="Enter your email" 
-            className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
-          />
+        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => { e.preventDefault(); if (validateEmail(email)) { alert('Thanks for subscribing!'); setEmail(''); } }}>
+          <div className="flex-1">
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (emailError) validateEmail(e.target.value); }}
+              onBlur={() => validateEmail(email)}
+              placeholder="Enter your email" 
+              className={`w-full px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white ${emailError ? 'ring-2 ring-red-500' : ''}`}
+            />
+            {emailError && <p className="text-red-200 text-sm text-left mt-1">{emailError}</p>}
+          </div>
           <button 
             type="submit"
             className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
