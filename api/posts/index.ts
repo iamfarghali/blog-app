@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPrisma } from '../../lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+
+const prisma = new PrismaClient();
 
 function isAuthorized(req: VercelRequest): boolean {
   const apiKey = req.headers['x-api-key'];
