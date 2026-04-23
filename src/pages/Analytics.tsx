@@ -10,11 +10,16 @@ interface AnalyticsData {
 export function Analytics() {
   const [data, setData] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/analytics')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load analytics');
+        return res.json();
+      })
       .then(setData)
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -22,6 +27,17 @@ export function Analytics() {
 
   if (loading) {
     return <div className="text-center py-8 text-gray-500">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">Analytics</h2>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+          Unable to load analytics: {error}
+        </div>
+      </div>
+    );
   }
 
   return (
