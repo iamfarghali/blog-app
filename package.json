@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "tsx watch server/index.ts",
-    "build": "npx prisma generate && tsc -b && vite build",
+    "build": "npx prisma generate && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
