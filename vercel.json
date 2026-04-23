@@ -3,8 +3,8 @@
   "framework": "vite",
   "installCommand": "npm install",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/((?!api|assets|_next).*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/((?!api|assets|_next).*)", "dest": "/index.html" }
   ]
 }
