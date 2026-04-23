@@ -22,19 +22,23 @@ export default async function handler(
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const prismaClient = getPrisma();
-  const analytics = await prismaClient.post.findMany({
-    include: {
-      _count: {
-        select: { pageViews: true },
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        _count: {
+          select: { pageViews: true },
+        },
       },
-    },
-  });
-  const result = analytics.map((post) => ({
-    id: post.id,
-    title: post.title,
-    slug: post.slug,
-    views: post._count.pageViews,
-  }));
-  res.json(result);
+    });
+    const result = posts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      views: post._count.pageViews,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
