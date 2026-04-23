@@ -1,6 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPrisma } from '../../lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 
 const analyticsViewSchema = z.object({
   postId: z.string().uuid(),
@@ -16,7 +24,7 @@ export default async function handler(
 
   try {
     const { postId } = analyticsViewSchema.parse(req.body);
-    const pageView = await getPrisma().pageView.create({
+    const pageView = await prisma.pageView.create({
       data: { postId },
     });
     res.status(201).json(pageView);

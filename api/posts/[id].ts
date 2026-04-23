@@ -1,7 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPrisma } from '../../lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 
 function isUUID(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
@@ -45,7 +53,7 @@ export default async function handler(
       const where = isUUID(param) 
         ? { id: param } 
         : { slug: param };
-      const post = await getPrisma().post.findUnique({ where });
+      const post = await prisma.post.findUnique({ where });
       if (!post) {
         return res.status(404).json({ error: 'Post not found' });
       }
@@ -66,7 +74,7 @@ export default async function handler(
     }
     try {
       const data = postUpdateSchema.parse(req.body);
-      const post = await getPrisma().post.update({
+      const post = await prisma.post.update({
         where: { id: param },
         data,
       });
@@ -88,7 +96,7 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid ID format' });
     }
     try {
-      await getPrisma().post.delete({
+      await prisma.post.delete({
         where: { id: param },
       });
       return res.status(204).send(null);

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { getPrisma } from './lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
 const app = express();
@@ -10,7 +10,13 @@ const PORT = process.env.PORT || 3001;
 const API_KEY = process.env.API_KEY;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
 
-const prisma = getPrisma();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const key = req.headers['x-api-key'];
