@@ -20,6 +20,10 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
+      if (!process.env.DATABASE_URL) {
+        console.error('DATABASE_URL not set');
+        return res.status(500).json({ error: 'DATABASE_URL not configured' });
+      }
       const posts = await getPrisma().post.findMany({
         where: { published: true },
         orderBy: { createdAt: 'desc' },
@@ -27,7 +31,7 @@ export default async function handler(
       return res.json(posts);
     } catch (error) {
       console.error('Error fetching posts:', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Internal server error', message: error.message });
     }
   }
 
