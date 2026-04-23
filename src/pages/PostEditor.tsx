@@ -17,6 +17,7 @@ export function PostEditor() {
 
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { error } = usePostsStore();
 
   const initialState = useMemo(() => {
     if (existingPost) {
@@ -88,6 +89,11 @@ export function PostEditor() {
 
   return (
     <div className="max-w-4xl">
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+          Error: {error}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-900">
           {isEditing ? 'Edit Post' : 'New Post'}
