@@ -70,7 +70,10 @@ export const usePostsStore = create<PostsState>((set, get) => ({
         },
         body: JSON.stringify(post),
       });
-      if (!res.ok) throw new Error('Failed to create post');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to create post');
+      }
       const newPost = await res.json();
       set({ posts: [newPost, ...get().posts], loading: false });
     } catch (e) {
